@@ -9,7 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.1] - 2026-10-03
 
-First tagged release. It includes everything from the pre-release 0.1.0 below.
+Changes since 0.1.0.
 
 ### Changed
 - **Breaking:** the exporter's own environment variables are now prefixed with
@@ -50,4 +50,5 @@ exporter silently falls back to the defaults.
 - Multi-stage Dockerfile, Docker Compose and Kubernetes (ServiceMonitor) examples.
 
 [Unreleased]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/compare/v0.1.1...HEAD
-[0.1.1]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/tags/v0.1.1
+[0.1.1]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/compare/v0.1.0...v0.1.1
+[0.1.0]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/tags/v0.1.0
