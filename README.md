@@ -48,6 +48,8 @@ docker run --rm -p 9190:9190 \
 For Kubernetes with the Prometheus Operator see [`examples/kubernetes`](examples/kubernetes)
 (Deployment, Service, ServiceMonitor and an optional PrometheusRule).
 
+A ready-made Grafana dashboard is in [`examples/grafana`](examples/grafana).
+
 The database account only needs `SELECT` on the parsedmarc tables; the exporter forces read-only
 sessions either way.
 

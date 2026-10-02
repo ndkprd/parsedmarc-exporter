@@ -7,6 +7,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Grafana dashboard example (`examples/grafana`) with a blue/yellow/orange status palette.
+
 ## [0.1.1] - 2026-10-03
 
 Changes since 0.1.0.

@@ -1,0 +1,1597 @@
+{
+  "id": null,
+  "uid": "parsedmarc-exporter-overview",
+  "title": "parsedmarc — DMARC Overview",
+  "description": "Are our domains passing DMARC, is anything being quarantined or rejected, and are reports still arriving? For email and security admins doing a weekly review or checking after an SPF/DKIM/DMARC change. Data comes from parsedmarc-exporter; counters change only when report batches are stored, so trends use daily windows. Colours: blue = good/neutral, yellow = warning, orange = bad.",
+  "tags": [
+    "parsedmarc",
+    "dmarc",
+    "prometheus"
+  ],
+  "editable": true,
+  "graphTooltip": 1,
+  "timezone": "browser",
+  "refresh": "5m",
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "weekStart": "",
+  "schemaVersion": 39,
+  "version": 1,
+  "links": [
+    {
+      "title": "parsedmarc-exporter",
+      "type": "link",
+      "url": "https://gitlab.com/endekasoft/parsedmarc-exporter",
+      "icon": "external link",
+      "targetBlank": true,
+      "keepTime": false,
+      "includeVars": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "PROMETHEUS_DS",
+        "label": "Prometheus",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": [],
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false
+      },
+      {
+        "name": "JOB",
+        "label": "Job",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${PROMETHEUS_DS}"
+        },
+        "query": "label_values(parsedmarc_exporter_up, job)",
+        "definition": "label_values(parsedmarc_exporter_up, job)",
+        "refresh": 2,
+        "sort": 1,
+        "hide": 0,
+        "multi": false,
+        "includeAll": false,
+        "regex": "",
+        "options": [],
+        "skipUrlSync": false,
+        "current": {
+          "selected": true,
+          "text": "parsedmarc",
+          "value": "parsedmarc"
+        }
+      },
+      {
+        "name": "domain",
+        "label": "Domain",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${PROMETHEUS_DS}"
+        },
+        "query": "label_values(parsedmarc_aggregate_messages_total{job=\"$JOB\"}, domain)",
+        "definition": "label_values(parsedmarc_aggregate_messages_total{job=\"$JOB\"}, domain)",
+        "refresh": 2,
+        "sort": 1,
+        "hide": 0,
+        "multi": true,
+        "includeAll": true,
+        "regex": "",
+        "options": [],
+        "skipUrlSync": false,
+        "current": {},
+        "allValue": ".*"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "DMARC pass rate",
+      "description": "Share of messages in stored aggregate reports that passed DMARC over the selected range. Blue at 98% or above, yellow below 98%, orange below 90%. If it drops, open the Senders row to see which source fails.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 5,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#F2711C",
+                "value": null
+              },
+              {
+                "color": "#F2C037",
+                "value": 0.9
+              },
+              {
+                "color": "#2E6FDB",
+                "value": 0.98
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "noValue": "n/a"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\", dmarc_passed=\"true\"}[$__range])) / sum(increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\"}[$__range]))",
+          "legendFormat": "__auto",
+          "editorMode": "code",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Messages reported",
+      "description": "Messages covered by the aggregate reports stored in the selected range (when parsedmarc stored them, not when the mail was sent).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 5,
+        "y": 0,
+        "w": 5,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\"}[$__range]))",
+          "legendFormat": "__auto",
+          "editorMode": "code",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Quarantined or rejected",
+      "description": "Share of messages the receiving servers quarantined or rejected under your DMARC policy. Blue at 0, yellow above 0, orange above 1%. Check the disposition trend and the sender breakdown before tightening or relaxing the policy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 10,
+        "y": 0,
+        "w": 5,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#2E6FDB",
+                "value": null
+              },
+              {
+                "color": "#F2C037",
+                "value": 1e-07
+              },
+              {
+                "color": "#F2711C",
+                "value": 0.01
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "(sum(increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\", disposition=~\"quarantine|reject\"}[$__range])) or vector(0)) / sum(increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\"}[$__range]))",
+          "legendFormat": "__auto",
+          "editorMode": "code",
+          "range": false,
+          "instant": true,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Stalest domain: hours since last report",
+      "description": "Age of the newest aggregate report of the domain that has been silent the longest. Reports usually lag 1-2 days: blue under 48h, yellow under 72h, orange beyond. Orange means a sender stopped reporting or ingestion is stuck.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 15,
+        "y": 0,
+        "w": 5,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#2E6FDB",
+                "value": null
+              },
+              {
+                "color": "#F2C037",
+                "value": 48
+              },
+              {
+                "color": "#F2711C",
+                "value": 72
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "noValue": "n/a"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "(time() - min(parsedmarc_last_report_end_timestamp_seconds{job=\"$JOB\", domain=~\"$domain\", report_type=\"aggregate\"})) / 3600",
+          "legendFormat": "__auto",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Exporter",
+      "description": "1 if the exporter reached PostgreSQL on its last scrape. Orange means the numbers on this dashboard may be stale; see the Exporter health row.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#F2711C",
+                "value": null
+              },
+              {
+                "color": "#2E6FDB",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "n/a",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Down"
+                },
+                "1": {
+                  "text": "Up"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "min(parsedmarc_exporter_up{job=\"$JOB\"})",
+          "legendFormat": "__auto",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Messages per day: pass vs fail",
+      "description": "Messages stored per day, split by DMARC result (rolling 1d window, because reports arrive in daily batches). Orange growth means more unauthenticated mail claiming your domain.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "axisLabel": "",
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pass"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#2E6FDB"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fail"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F2711C"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\", dmarc_passed=\"true\"}[1d]))",
+          "legendFormat": "Pass",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "B",
+          "expr": "sum(increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\", dmarc_passed=\"false\"}[1d]))",
+          "legendFormat": "Fail",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "DMARC pass rate by domain",
+      "description": "Daily DMARC pass rate per domain (rolling 1d). The line turns yellow below 98% and orange below 90%; dashed lines mark the same thresholds as the stat tile.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#F2711C",
+                "value": null
+              },
+              {
+                "color": "#F2C037",
+                "value": 0.9
+              },
+              {
+                "color": "#2E6FDB",
+                "value": 0.98
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "min": 0,
+          "max": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "axisLabel": "",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "sum by (domain) (increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\", dmarc_passed=\"true\"}[1d])) / sum by (domain) (increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\"}[1d]))",
+          "legendFormat": "{{domain}}",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Disposition over time",
+      "description": "Messages per day by what receivers did: none (delivered), quarantine (spam folder) or reject. Yellow or orange bars after a policy change show the policy is biting; unexpected ones show a legitimate sender failing.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${PROMETHEUS_DS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "axisLabel": "",
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "none"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#2E6FDB"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "quarantine"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F2C037"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "reject"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F2711C"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "refId": "A",
+          "expr": "sum by (disposition) (increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\"}[1d]))",
+          "legendFormat": "{{disposition}}",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "row",
+      "title": "Senders",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 10,
+          "type": "bargauge",
+          "title": "SPF and DKIM alignment",
+          "description": "Messages in the range by SPF/DKIM alignment result. Blue: both aligned. Orange: neither aligned (fails DMARC). Yellow: only one aligned, which still passes DMARC but is a single point of failure.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 21,
+            "w": 8,
+            "h": 7
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#F2C037"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "SPF true / DKIM true"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#2E6FDB"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "SPF false / DKIM false"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F2711C"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdMarkers": true,
+            "orientation": "horizontal",
+            "displayMode": "gradient"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "sum by (spf_aligned, dkim_aligned) (increase(parsedmarc_aggregate_messages_total{job=\"$JOB\", domain=~\"$domain\"}[$__range]))",
+              "legendFormat": "SPF {{spf_aligned}} / DKIM {{dkim_aligned}}",
+              "editorMode": "code",
+              "range": false,
+              "instant": true,
+              "format": "time_series"
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "type": "bargauge",
+          "title": "Messages by sender type",
+          "description": "Messages in the range by the type parsedmarc assigns to the sending source (email provider, security gateway, ...). Unfamiliar types deserve a look at the top-sources table.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 8,
+            "y": 21,
+            "w": 8,
+            "h": 7
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#2E6FDB"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdMarkers": true,
+            "orientation": "horizontal",
+            "displayMode": "gradient"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "sum by (source_type) (increase(parsedmarc_source_messages_total{job=\"$JOB\", domain=~\"$domain\"}[$__range]))",
+              "legendFormat": "{{source_type}}",
+              "editorMode": "code",
+              "range": false,
+              "instant": true,
+              "format": "time_series"
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "type": "bargauge",
+          "title": "Failure reports per domain",
+          "description": "DMARC failure (forensic) reports stored in the range. Any count above zero is yellow: someone is sending mail that fails authentication for your domain.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 16,
+            "y": 21,
+            "w": 8,
+            "h": 7
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#2E6FDB",
+                    "value": null
+                  },
+                  {
+                    "color": "#F2C037",
+                    "value": 1
+                  },
+                  {
+                    "color": "#F2711C",
+                    "value": 50
+                  }
+                ]
+              },
+              "color": {
+                "mode": "thresholds"
+              },
+              "noValue": "0"
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdMarkers": true,
+            "orientation": "horizontal",
+            "displayMode": "gradient"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "sum by (domain) (increase(parsedmarc_failure_reports_total{job=\"$JOB\", domain=~\"$domain\"}[$__range]))",
+              "legendFormat": "{{domain}}",
+              "editorMode": "code",
+              "range": false,
+              "instant": true,
+              "format": "time_series"
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "type": "table",
+          "title": "Top sending sources (last 7 days)",
+          "description": "Top sources per domain by messages over the exporter's sources window (default 7 days; not affected by the dashboard time range). The rest is folded into 'other'. Check unfamiliar names and countries.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 28,
+            "w": 24,
+            "h": 10
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false,
+              "reducer": [
+                "sum"
+              ],
+              "fields": ""
+            },
+            "sortBy": [
+              {
+                "displayName": "Value",
+                "desc": true
+              }
+            ]
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "topk(25, sum by (domain, source_name, source_country) (parsedmarc_top_source_messages{job=\"$JOB\", domain=~\"$domain\"}))",
+              "legendFormat": "__auto",
+              "editorMode": "code",
+              "range": false,
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "source_name": "Source",
+                  "source_country": "Country",
+                  "domain": "Domain",
+                  "Value": "Messages"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "row",
+      "title": "Reports and TLS",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 15,
+          "type": "timeseries",
+          "title": "TLS sessions: success vs failure",
+          "description": "SMTP TLS-RPT sessions per day (rolling 1d). Orange means senders could not negotiate TLS with your MX hosts; see the failure types next to it.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 22,
+            "w": 8,
+            "h": 7
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "bars",
+                "lineWidth": 1,
+                "fillOpacity": 80,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "normal",
+                  "group": "A"
+                },
+                "axisLabel": "",
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "success"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#2E6FDB"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "failure"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F2711C"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": [],
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "sum by (result) (increase(parsedmarc_smtp_tls_sessions_total{job=\"$JOB\", domain=~\"$domain\"}[1d]))",
+              "legendFormat": "{{result}}",
+              "editorMode": "code",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "type": "bargauge",
+          "title": "Failed TLS sessions by type",
+          "description": "Failed SMTP TLS-RPT sessions in the range by failure type (for example certificate-expired or starttls-not-supported). Empty means no TLS failures were reported.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 8,
+            "y": 22,
+            "w": 8,
+            "h": 7
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#F2711C"
+              },
+              "noValue": "0"
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdMarkers": true,
+            "orientation": "horizontal",
+            "displayMode": "gradient"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "sum by (result_type) (increase(parsedmarc_smtp_tls_failed_sessions_total{job=\"$JOB\", domain=~\"$domain\"}[$__range]))",
+              "legendFormat": "{{result_type}}",
+              "editorMode": "code",
+              "range": false,
+              "instant": true,
+              "format": "time_series"
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "type": "table",
+          "title": "Time since newest report",
+          "description": "Age of the newest stored report per report type and domain. Aggregate reports normally arrive daily with a 1-2 day lag; a much older value means that sender stopped reporting.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 29,
+            "w": 24,
+            "h": 10
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false,
+              "reducer": [
+                "sum"
+              ],
+              "fields": ""
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "time() - max by (report_type, domain) (parsedmarc_last_report_end_timestamp_seconds{job=\"$JOB\", domain=~\"$domain\"})",
+              "legendFormat": "__auto",
+              "editorMode": "code",
+              "range": false,
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "report_type": "Report type",
+                  "domain": "Domain",
+                  "Value": "Age"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "row",
+      "title": "Exporter health",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 19,
+          "type": "timeseries",
+          "title": "Scrape duration",
+          "description": "How long the exporter's database queries take per scrape. Sustained growth means the tables are getting large; scrapes should stay far below the Prometheus scrape timeout.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 23,
+            "w": 12,
+            "h": 7
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#2E6FDB"
+              },
+              "decimals": 3,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "axisLabel": "",
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": [],
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "parsedmarc_exporter_scrape_duration_seconds{job=\"$JOB\"}",
+              "legendFormat": "duration",
+              "editorMode": "code",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "type": "timeseries",
+          "title": "Scrape errors by group",
+          "description": "Failed collection groups per interval. Any orange here means part of the data is missing and the Exporter tile shows Down; check the exporter logs.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${PROMETHEUS_DS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 23,
+            "w": 12,
+            "h": 7
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#F2711C"
+              },
+              "noValue": "0",
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 10,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "axisLabel": "",
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "calcs": [],
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${PROMETHEUS_DS}"
+              },
+              "refId": "A",
+              "expr": "sum by (group) (increase(parsedmarc_exporter_scrape_errors_total{job=\"$JOB\"}[$__rate_interval]))",
+              "legendFormat": "{{group}}",
+              "editorMode": "code",
+              "range": true,
+              "instant": false,
+              "format": "time_series"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "row",
+      "title": "About this dashboard",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 22,
+          "type": "text",
+          "title": "About",
+          "gridPos": {
+            "x": 0,
+            "y": 24,
+            "w": 24,
+            "h": 6
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "Built for parsedmarc-exporter (https://gitlab.com/endekasoft/parsedmarc-exporter). Variables: Prometheus data source, Job (the scrape job of the exporter) and Domain. Counters are cumulative sums of stored reports, so values reflect when parsedmarc stored a report. Colour code: blue = good or neutral, yellow = warning, orange = bad."
+          }
+        }
+      ]
+    }
+  ]
+}
