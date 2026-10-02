@@ -7,6 +7,31 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-03
+
+First tagged release. It includes everything from the pre-release 0.1.0 below.
+
+### Changed
+- **Breaking:** the exporter's own environment variables are now prefixed with
+  `PARSEDMARC_EXPORTER_`: `EXPORTER_DB_HOST`, `EXPORTER_DB_PORT`, `EXPORTER_LISTEN`,
+  `EXPORTER_SOURCES_WINDOW`, `EXPORTER_TOP_N`, `EXPORTER_QUERY_TIMEOUT`, `EXPORTER_LOG_LEVEL` and
+  `EXPORTER_LOG_FILE` become `PARSEDMARC_EXPORTER_<same suffix>`. The old names are no longer read.
+  `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` are unchanged.
+- The Go module path is now `gitlab.com/endekasoft/parsedmarc-exporter`.
+- The container image is published as `registry.gitlab.com/endekasoft/parsedmarc-exporter`.
+- The Dockerfile defaults to public base images and the public Go module proxy; `GO_IMAGE`,
+  `RUNTIME_IMAGE` and `GOPROXY` build arguments allow mirrors.
+
+### Added
+- MIT `LICENSE`, `CONTRIBUTING.md`, `AGENTS.md`, and a README disclaimer that the project is not
+  affiliated with parsedmarc.
+- `examples/docker-compose` (PostgreSQL, parsedmarc and the exporter) and `examples/kubernetes`
+  (Deployment, Service, ServiceMonitor, optional PrometheusRule).
+
+### Upgrading from 0.1.0
+Rename the `EXPORTER_*` variables as listed above before deploying 0.1.1; with the old names the
+exporter silently falls back to the defaults.
+
 ## [0.1.0] - 2026-10-03
 
 ### Added
@@ -24,5 +49,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Landing page at `/`, `/healthz`, and a `-healthcheck` flag for container healthchecks.
 - Multi-stage Dockerfile, Docker Compose and Kubernetes (ServiceMonitor) examples.
 
-[Unreleased]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/compare/v0.1.0...HEAD
-[0.1.0]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/tags/v0.1.0
+[Unreleased]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/compare/v0.1.1...HEAD
+[0.1.1]: https://gitlab.com/endekasoft/parsedmarc-exporter/-/tags/v0.1.1
