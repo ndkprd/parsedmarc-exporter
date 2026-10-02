@@ -34,13 +34,13 @@ func Load(getenv func(string) string) (Config, error) {
 		return def
 	}
 	c := Config{
-		DBHost:     get("EXPORTER_DB_HOST", "postgres"),
+		DBHost:     get("PARSEDMARC_EXPORTER_DB_HOST", "postgres"),
 		DBUser:     getenv("POSTGRES_USER"),
 		DBPassword: getenv("POSTGRES_PASSWORD"),
 		DBName:     getenv("POSTGRES_DB"),
-		Listen:     get("EXPORTER_LISTEN", ":9190"),
-		LogLevel:   get("EXPORTER_LOG_LEVEL", "info"),
-		LogFile:    getenv("EXPORTER_LOG_FILE"),
+		Listen:     get("PARSEDMARC_EXPORTER_LISTEN", ":9190"),
+		LogLevel:   get("PARSEDMARC_EXPORTER_LOG_LEVEL", "info"),
+		LogFile:    getenv("PARSEDMARC_EXPORTER_LOG_FILE"),
 	}
 
 	var errs []error
@@ -50,20 +50,20 @@ func Load(getenv func(string) string) (Config, error) {
 		}
 	}
 
-	port, err := strconv.ParseUint(get("EXPORTER_DB_PORT", "5432"), 10, 16)
+	port, err := strconv.ParseUint(get("PARSEDMARC_EXPORTER_DB_PORT", "5432"), 10, 16)
 	if err != nil {
-		errs = append(errs, fmt.Errorf("EXPORTER_DB_PORT: %w", err))
+		errs = append(errs, fmt.Errorf("PARSEDMARC_EXPORTER_DB_PORT: %w", err))
 	}
 	c.DBPort = uint16(port)
 
-	if c.SourcesWindow, err = positiveDuration(get("EXPORTER_SOURCES_WINDOW", "168h")); err != nil {
-		errs = append(errs, fmt.Errorf("EXPORTER_SOURCES_WINDOW: %w", err))
+	if c.SourcesWindow, err = positiveDuration(get("PARSEDMARC_EXPORTER_SOURCES_WINDOW", "168h")); err != nil {
+		errs = append(errs, fmt.Errorf("PARSEDMARC_EXPORTER_SOURCES_WINDOW: %w", err))
 	}
-	if c.QueryTimeout, err = positiveDuration(get("EXPORTER_QUERY_TIMEOUT", "10s")); err != nil {
-		errs = append(errs, fmt.Errorf("EXPORTER_QUERY_TIMEOUT: %w", err))
+	if c.QueryTimeout, err = positiveDuration(get("PARSEDMARC_EXPORTER_QUERY_TIMEOUT", "10s")); err != nil {
+		errs = append(errs, fmt.Errorf("PARSEDMARC_EXPORTER_QUERY_TIMEOUT: %w", err))
 	}
-	if c.TopN, err = strconv.Atoi(get("EXPORTER_TOP_N", "20")); err != nil || c.TopN < 1 {
-		errs = append(errs, errors.New("EXPORTER_TOP_N must be a positive integer"))
+	if c.TopN, err = strconv.Atoi(get("PARSEDMARC_EXPORTER_TOP_N", "20")); err != nil || c.TopN < 1 {
+		errs = append(errs, errors.New("PARSEDMARC_EXPORTER_TOP_N must be a positive integer"))
 	}
 	return c, errors.Join(errs...)
 }

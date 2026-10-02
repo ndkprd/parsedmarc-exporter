@@ -7,11 +7,11 @@ kube-prometheus-stack) for the `ServiceMonitor` and `PrometheusRule` resources.
    version, build and push it to a registry your cluster can pull from:
 
    ```bash
-   docker build -t registry.gitlab.com/endekasoft/parsedmarc-exporter:0.1.0 --build-arg VERSION=0.1.0 ../..
-   docker push registry.gitlab.com/endekasoft/parsedmarc-exporter:0.1.0
+   docker build -t registry.gitlab.com/endekasoft/parsedmarc-exporter:0.1.1 --build-arg VERSION=0.1.1 ../..
+   docker push registry.gitlab.com/endekasoft/parsedmarc-exporter:0.1.1
    ```
 
-2. Create the database Secret (see `secret.example.yaml`), then set `EXPORTER_DB_HOST` (and
+2. Create the database Secret (see `secret.example.yaml`), then set `PARSEDMARC_EXPORTER_DB_HOST` (and
    `image:` if you changed it) in `exporter.yaml`.
 3. Apply the resources into the namespace that also contains parsedmarc's PostgreSQL:
 

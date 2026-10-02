@@ -117,7 +117,7 @@ func newMux(gatherer prometheus.Gatherer) *http.ServeMux {
 func newLogger(cfg config.Config) (zerolog.Logger, func(), error) {
 	level, err := zerolog.ParseLevel(cfg.LogLevel)
 	if err != nil {
-		return zerolog.Logger{}, nil, fmt.Errorf("EXPORTER_LOG_LEVEL: %w", err)
+		return zerolog.Logger{}, nil, fmt.Errorf("PARSEDMARC_EXPORTER_LOG_LEVEL: %w", err)
 	}
 	var out io.Writer = os.Stderr
 	closeLog := func() {}

@@ -34,10 +34,10 @@ func TestLoadDefaults(t *testing.T) {
 
 func TestLoadErrors(t *testing.T) {
 	tests := map[string]map[string]string{
-		"EXPORTER_SOURCES_WINDOW": {"EXPORTER_SOURCES_WINDOW": "soon"},
-		"EXPORTER_QUERY_TIMEOUT":  {"EXPORTER_QUERY_TIMEOUT": "-1s"},
-		"EXPORTER_TOP_N":          {"EXPORTER_TOP_N": "0"},
-		"EXPORTER_DB_PORT":        {"EXPORTER_DB_PORT": "99999"},
+		"PARSEDMARC_EXPORTER_SOURCES_WINDOW": {"PARSEDMARC_EXPORTER_SOURCES_WINDOW": "soon"},
+		"PARSEDMARC_EXPORTER_QUERY_TIMEOUT":  {"PARSEDMARC_EXPORTER_QUERY_TIMEOUT": "-1s"},
+		"PARSEDMARC_EXPORTER_TOP_N":          {"PARSEDMARC_EXPORTER_TOP_N": "0"},
+		"PARSEDMARC_EXPORTER_DB_PORT":        {"PARSEDMARC_EXPORTER_DB_PORT": "99999"},
 	}
 	for want, extra := range tests {
 		if _, err := Load(env(with(extra))); err == nil || !strings.Contains(err.Error(), want) {

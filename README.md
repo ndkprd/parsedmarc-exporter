@@ -40,7 +40,7 @@ Already running parsedmarc with PostgreSQL? Run only the exporter against your d
 
 ```bash
 docker run --rm -p 9190:9190 \
-  -e EXPORTER_DB_HOST=your-postgres-host \
+  -e PARSEDMARC_EXPORTER_DB_HOST=your-postgres-host \
   -e POSTGRES_USER=... -e POSTGRES_PASSWORD=... -e POSTGRES_DB=... \
   registry.gitlab.com/endekasoft/parsedmarc-exporter:latest
 ```
@@ -66,12 +66,12 @@ All settings are environment variables.
 | Variable | Default | Meaning |
 |---|---|---|
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | required | database account and name |
-| `EXPORTER_DB_HOST` / `EXPORTER_DB_PORT` | `postgres` / `5432` | database address |
-| `EXPORTER_LISTEN` | `:9190` | HTTP listen address |
-| `EXPORTER_SOURCES_WINDOW` | `168h` | window of `parsedmarc_top_source_messages` |
-| `EXPORTER_TOP_N` | `20` | sources kept per domain before folding the rest into `other` |
-| `EXPORTER_QUERY_TIMEOUT` | `10s` | per-group query timeout |
-| `EXPORTER_LOG_LEVEL` / `EXPORTER_LOG_FILE` | `info` / unset | logs go to stderr, and also to the file if set |
+| `PARSEDMARC_EXPORTER_DB_HOST` / `PARSEDMARC_EXPORTER_DB_PORT` | `postgres` / `5432` | database address |
+| `PARSEDMARC_EXPORTER_LISTEN` | `:9190` | HTTP listen address |
+| `PARSEDMARC_EXPORTER_SOURCES_WINDOW` | `168h` | window of `parsedmarc_top_source_messages` |
+| `PARSEDMARC_EXPORTER_TOP_N` | `20` | sources kept per domain before folding the rest into `other` |
+| `PARSEDMARC_EXPORTER_QUERY_TIMEOUT` | `10s` | per-group query timeout |
+| `PARSEDMARC_EXPORTER_LOG_LEVEL` / `PARSEDMARC_EXPORTER_LOG_FILE` | `info` / unset | logs go to stderr, and also to the file if set |
 
 ## Metrics
 
@@ -141,7 +141,7 @@ docker build \
   --build-arg GO_IMAGE=registry.example.com/golang:1.27.1 \
   --build-arg RUNTIME_IMAGE=registry.example.com/debian:trixie-20260918-slim \
   --build-arg GOPROXY=https://goproxy.example.com,direct \
-  --build-arg VERSION=0.1.0 -t registry.gitlab.com/endekasoft/parsedmarc-exporter:0.1.0 .
+  --build-arg VERSION=0.1.1 -t registry.gitlab.com/endekasoft/parsedmarc-exporter:0.1.1 .
 ```
 
 ## Development

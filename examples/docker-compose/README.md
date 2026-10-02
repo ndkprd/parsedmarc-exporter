@@ -27,7 +27,7 @@ To scrape over a Docker network instead of a host port, put Prometheus and the e
 network and use `exporter:9190`.
 
 Already running parsedmarc with PostgreSQL? Add only the `exporter` service and point
-`EXPORTER_DB_HOST` and the `POSTGRES_*` variables at your existing database.
+`PARSEDMARC_EXPORTER_DB_HOST` and the `POSTGRES_*` variables at your existing database.
 
 The image tag `ghcr.io/domainaware/parsedmarc` and the PostgreSQL version are pinned for
 reproducibility; check upstream for newer releases. For other mailbox types (Microsoft Graph,

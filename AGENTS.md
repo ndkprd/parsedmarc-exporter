@@ -12,4 +12,4 @@ configuration and `CONTRIBUTING.md` for the workflow.
   write queries.
 - A Go toolchain may be absent: run `gofmt`, `go vet` and `go test` in the `golang` image (see
   `CONTRIBUTING.md`).
-- Logging uses `rs/zerolog` to stderr (plus `EXPORTER_LOG_FILE` when set).
+- Logging uses `rs/zerolog` to stderr (plus `PARSEDMARC_EXPORTER_LOG_FILE` when set).
