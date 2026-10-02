@@ -1,0 +1,47 @@
+# ServiceMonitor for the Prometheus Operator (monitoring.coreos.com/v1).
+# `release: kube-prometheus-stack` is the selector label used by the kube-prometheus-stack Helm
+# chart by default; change it to whatever your Prometheus `serviceMonitorSelector` expects.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: parsedmarc-exporter
+  labels:
+    app.kubernetes.io/name: parsedmarc-exporter
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: parsedmarc-exporter
+  namespaceSelector:
+    matchNames:
+      - parsedmarc
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 60s
+      scrapeTimeout: 20s
+---
+# Optional alerts (requires the Prometheus Operator CRDs as well).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: parsedmarc-exporter
+  labels:
+    app.kubernetes.io/name: parsedmarc-exporter
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: parsedmarc
+      rules:
+        - alert: ParsedmarcExporterDown
+          expr: parsedmarc_exporter_up == 0 or absent(parsedmarc_exporter_up)
+          for: 5m
+          labels: {severity: warning}
+          annotations:
+            summary: parsedmarc exporter cannot reach PostgreSQL or is down
+        - alert: ParsedmarcNoRecentReports
+          expr: time() - max by (domain) (parsedmarc_last_report_end_timestamp_seconds{report_type="aggregate"}) > 72 * 3600
+          for: 15m
+          labels: {severity: warning}
+          annotations:
+            summary: "No DMARC aggregate report for {{ $labels.domain }} in 72h"
